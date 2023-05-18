@@ -1,2 +1,4 @@
 ---
 # vars file for mysql
+
+mysql_pkg: "mysql-community-release-el7-5.noarch.rpm"

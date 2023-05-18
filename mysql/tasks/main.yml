@@ -1,2 +1,32 @@
 ---
 # tasks file for mysql
+
+    - name: Install LAMP Packages
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: ['mysql-server']
+      when: ansible_os_family == "Debian"
+
+    - name: Download sources
+      get_url:
+        url: http://repo.mysql.com/{{mysql_pkg}}
+        dest: .
+      when: ansible_os_family == "RedHat"
+
+    - name: Install package
+      yum:
+        name: ./{{mysql_pkg}}
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install MySQL
+      yum: 
+        name: mysql-server 
+        state: installed
+      when: ansible_os_family == "RedHat"
+
+    - name: Start the MYSQL service
+      service:
+        name: mysqld
+        enabled: yes
+        state: started
+      when: ansible_os_family == "RedHat"
