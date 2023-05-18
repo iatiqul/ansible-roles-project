@@ -1,0 +1,66 @@
+---
+# tasks file for nginx
+
+
+    - name: Install prerequisites
+      apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+      loop: [ 'aptitude' ]
+      when: ansible_os_family == "Debian"
+
+    - name: Add epel-release repo on CentOS
+      yum:
+        name: epel-release
+        state: present
+      when: ansible_os_family == "RedHat"    
+      
+    - name: Install Nginx 
+      yum: 
+        name: nginx
+        state: latest
+        update_cache: yes
+
+    - name: Set up nginx config directory
+      file: path=/etc/nginx/{{ item }}
+            state=directory
+      with_items:
+        - sites-available
+        - sites-enabled
+    
+    - name: Generate the nginx configuration file on CentOS
+      copy: src=nginx.conf.j2
+            dest=/etc/nginx/nginx.conf
+      when: ansible_os_family == "RedHat"
+
+    - name: Deactivate the default nginx site on CentOS
+      file: path=/etc/nginx/sites-enabled/default
+            state=absent
+      when: ansible_os_family == "RedHat"
+
+    - name: Start NGiNX on CentOs
+      service:
+        name: nginx
+        state: started
+      when: ansible_os_family == "RedHat"
+
+    - name: Apply Nginx template on Ubuntu
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+      notify: Restart Nginx
+      when: ansible_os_family == "Debian"
+    
+    - name: Enable new site on Ubuntu
+      file:
+        src: /etc/nginx/sites-available/default
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+      notify: Restart Nginx
+      when: ansible_os_family == "Debian"
+
+    - name: "UFW - Allow HTTP on port {{ http_port }}"
+      ufw:
+        rule: allow
+        port: "{{ http_port }}"
+        proto: tcp
+      when: ansible_os_family == "Debian"
+
