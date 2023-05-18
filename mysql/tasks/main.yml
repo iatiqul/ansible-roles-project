@@ -1,7 +1,7 @@
 ---
 # tasks file for mysql
 
-    - name: Install LAMP Packages
+    - name: Install MySQL Packages
       apt: name={{ item }} update_cache=yes state=latest
       loop: ['mysql-server']
       when: ansible_os_family == "Debian"

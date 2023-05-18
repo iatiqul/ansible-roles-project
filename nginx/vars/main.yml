@@ -1,4 +1,4 @@
 ---
 # vars file for nginx
 
-http_port: "8087"
+http_port: "8086"
