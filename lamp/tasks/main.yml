@@ -1,0 +1,7 @@
+---
+# tasks file for lamp
+
+    - name: Install LAMP Packages
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: [ 'python3-pymysql', 'php-mysql', 'libapache2-mod-php' ]
+      when: ansible_os_family == "Debian"
